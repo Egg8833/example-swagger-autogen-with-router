@@ -21,8 +21,8 @@
     "apiKeyAuth": {
       "type": "apiKey",
       "in": "header",
-      "name": "X-API-KEY",
-      "description": "any description..."
+      "name": "Authorization",
+      "description": "請輸入 Bearer <token>"
     }
   },
   "consumes": [
@@ -34,12 +34,10 @@
   "paths": {
     "/test-get": {
       "get": {
-        "tags": [],
         "description": "",
         "produces": [
           "application/json"
         ],
-        "parameters": [],
         "responses": {
           "200": {
             "description": "OK"
@@ -49,9 +47,7 @@
     },
     "/test-post": {
       "post": {
-        "tags": [],
         "description": "",
-        "parameters": [],
         "responses": {
           "201": {
             "description": "Created"
@@ -61,7 +57,6 @@
     },
     "/test-delete/{id}": {
       "delete": {
-        "tags": [],
         "description": "",
         "parameters": [
           {
@@ -83,28 +78,78 @@
         "tags": [
           "User"
         ],
-        "description": "Endpoint to sign in a specific user",
+        "description": "用戶登入",
         "parameters": [
           {
-            "name": "obj",
+            "name": "body",
             "in": "body",
-            "description": "User information.",
+            "description": "使用者登入資料",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AddUser"
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "johndoe"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "123456"
+                }
+              },
+              "required": [
+                "username",
+                "password"
+              ]
             }
           }
         ],
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "登入成功",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "example": [],
+                  "items": {}
+                },
+                "token": {
+                  "type": "string",
+                  "example": "jwt_token"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Authentication successed"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "401": {
+            "description": "登入失敗",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "example": [],
+                  "items": {}
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Authentication failed"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
-        },
-        "security": [
-          {
-            "apiKeyAuth": []
-          }
-        ]
+        }
       }
     },
     "/users/{id}": {
@@ -112,33 +157,71 @@
         "tags": [
           "User"
         ],
-        "description": "Endpoint to get a specific user.",
+        "description": "取得特定使用者",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "使用者 ID"
           }
         ],
         "responses": {
           "200": {
-            "description": "User registered successfully.",
+            "description": "成功取得使用者",
             "schema": {
               "$ref": "#/definitions/User"
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "未授權",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Authentication failed!"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "404": {
+            "description": "找不到使用者",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "example": [],
+                  "items": {}
+                },
+                "message": {
+                  "type": "string",
+                  "example": "User not found"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
         }
       }
     },
     "/v2/test-get": {
       "get": {
-        "tags": [],
         "description": "Description here...",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -151,13 +234,17 @@
     },
     "/v2/test-delete/{id}": {
       "delete": {
-        "tags": [],
         "description": "",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
             "type": "string"
           }
         ],
@@ -256,5 +343,10 @@
         "age"
       ]
     }
-  }
+  },
+  "security": [
+    {
+      "apiKeyAuth": []
+    }
+  ]
 }

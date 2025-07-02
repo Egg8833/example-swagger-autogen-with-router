@@ -1,9 +1,18 @@
+const jwt = require('jsonwebtoken')
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key'
 
-module.exports = (req, res, next) => {
-    try {
-        // validation...
-        next()
-    } catch (error) {
-        res.status(401).json({ message: "Authentication failed!" })
-    }
+module.exports = function authorize(req, res, next) {
+  const authHeader = req.headers['authorization']
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({message: 'Authentication failed!'})
+  }
+
+  try {
+    const token = authHeader.split(' ')[1]
+    const decoded = jwt.verify(token, JWT_SECRET)
+    req.user = decoded
+    next()
+  } catch (err) {
+    return res.status(401).json({message: 'Invalid or expired token'})
+  }
 }

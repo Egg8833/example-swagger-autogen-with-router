@@ -13,13 +13,14 @@ const swaggerUi = require('swagger-ui-express')
 const swaggerFile = require('../swagger-output.json')
 const express = require('express')
 const app = express()
+app.use(express.json())
 
 /* Routes */
-const router = require('./routes')
 
 /* Middlewares */
-app.use(router)
+const router = require('./routes')
 app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+app.use(router)
 
 app.listen(3000, () => {
   console.log("Server is running!\nAPI documentation: http://localhost:3000/doc")
